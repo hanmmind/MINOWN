@@ -14,14 +14,15 @@ class MYSQL():
         sql = pymysql.connect(host=self.host, user=self.user, password=self.password, port=self.port, database=self.database, charset="utf8mb4")
         cur = sql.cursor(pymysql.cursors.DictCursor)
         print("数据库连接成功")
-        return cur
+        return sql,cur
 
     def select_sql(self, select_list, select_option, table):
-        cursor = self.connect_sql()
+        db,cursor = self.connect_sql()
         sql_cmd = self.get_select_cmd(select_list, select_option, table)
         print("[SQL_CMD]{}".format(sql_cmd))
         cursor.execute(sql_cmd)
         sql_data = cursor.fetchall()
+        db.close()
         return sql_data
 
     def get_select_cmd(self, select_list, select_option, table):
@@ -31,7 +32,29 @@ class MYSQL():
             select_str = ",".join(select_list)
         option_list = []
         for key, value in select_option.items():
-            option_list.append("{}={}".format(key, value))
-        option = "AND".join(option_list)
+            if "IN" == key[-2:]:
+                option_list.append("{} {}".format(key, value))
+            elif "!" == key[-1]:
+                option_list.append("{}={}".format(key, value))
+            else:
+                option_list.append("{}={}".format(key, value))
+        option = " AND ".join(option_list)
         sql_cmd = "SELECT {} FROM {} WHERE {}".format(select_str, table, option)
+        return sql_cmd
+    def insert_sql(self,insert_option,table):
+        db,cursor = self.connect_sql()
+        sql_cmd = self.insert_sql_cmd(insert_option,table)
+        print("[SQL_CMD]{}".format(sql_cmd))
+        cursor.execute(sql_cmd)
+        db.commit()
+        db.close()
+    def insert_sql_cmd(self,insert_option,table):
+        colum_name_list = []
+        value_list = []
+        for keys,values in insert_option.items():
+            colum_name_list.append(keys)
+            value_list.append(values)
+        colum_name = ",".join(colum_name_list)
+        value = ",".join(value_list)
+        sql_cmd = "INSERT INTO {} ({}) VALUES ({})".format(table,colum_name,value)
         return sql_cmd
