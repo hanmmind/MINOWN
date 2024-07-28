@@ -5,7 +5,7 @@ port = 3306
 password = "123456"
 database = "sakila"
 sql = MYSQL(hostname,password,user,port,database)
-select_list = []
+select_list = ["country"]
 option = {
     "country_id":1
 }

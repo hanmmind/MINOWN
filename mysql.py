@@ -10,8 +10,8 @@ class MYSQL():
         self.database = database
 
     def connect_sql(self):
-        sql = pymysql.connect(host=self.host, password=self.password, port=self.port, database=self.database,
-                              charset="utf8mb4")
+        print("host={}, user={}, password={}, port={}, database={}".format(self.host, self.user, self.password, self.port, self.database))
+        sql = pymysql.connect(host=self.host, user=self.user, password=self.password, port=self.port, database=self.database, charset="utf8mb4")
         cur = sql.cursor(pymysql.cursors.DictCursor)
         print("数据库连接成功")
         return cur
@@ -30,7 +30,7 @@ class MYSQL():
         else:
             select_str = ",".join(select_list)
         option_list = []
-        for key, value in select_option.item():
+        for key, value in select_option.items():
             option_list.append("{}={}".format(key, value))
         option = "AND".join(option_list)
         sql_cmd = "SELECT {} FROM {} WHERE {}".format(select_str, table, option)
